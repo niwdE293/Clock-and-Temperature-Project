@@ -1,5 +1,5 @@
 /*
-  Project: Clock and tempreture project
+  Project: Clock and temperature project
   Author: Edwin Ädel
   Date: 2025-11-07
   Description: Displays the time on a led ring and displays tempreture on a screen and servo.
@@ -23,8 +23,8 @@ Servo myservo;
 Adafruit_NeoPixel ring(LED_COUNT, LED_PIN, NEO_RGB + NEO_KHZ800);
 
 int servoPin = 9;   // The pin the servo is connected to on the arduino.
-int minTemp = 20;   // Minimum expected temperature.
-int maxTemp = 30;   // Maximum expected temperature.
+int minTemp = 23;   // Minimum expected temperature.
+int maxTemp = 27;   // Maximum expected temperature.
 int cx = 64;  // center x
 int cy = 37;  // center y
 int radius = 20; // Clock radius
@@ -96,7 +96,7 @@ String getTime(){
 void servoPosition(){
   float temp = (rtc.getTemperature()) * 1000; // Gets the temperature from the rtc module and multiplies it to get a more percise reading.
   int angle = map(temp , minTemp * 1000, maxTemp * 1000, 0, 180); // Converts all tempreture values to a range between 0-180 degrees on the servo.
-  myservo.write(angle); // Writes out the angle of the servo. 
+  myservo.write(angle); // Writes out the angle of the servo.
 }
 
 void analogClock() {
@@ -136,8 +136,12 @@ void analogClock() {
 
 // Sets the light color depending on the temperatur the tempreture.
 void ledRingTemperature(){
-  int lightValue = map(rtc.getTemperature() * 1000, minTemp * 1000, maxTemp * 1000, 0, 255);
+  float temp = max(minTemp, rtc.getTemperature()); // Takes the highest value of minimum expected temperature and the current temperature.
+  temp = min(maxTemp, temp); // Takes the lowest value of maximum expected temperature and the current temperature.
 
+  int lightValue = map(temp * 1000, minTemp * 1000, maxTemp * 1000, 0, 255);
+
+  // Turns on all lights and sets the color using the temperature.
   for(int i = 0; i < 24; i++){
 
       ring.setPixelColor(i, 0, 0, lightValue);
@@ -167,13 +171,9 @@ void loop () {
   
   servoPosition(); // Updates the position of the servo.
 
-  ledRingTemperature();
+  ledRingTemperature(); // Updates the background light color using the current temperature.
 
   ledRing(); // Updates the position of the lights on the led ring.
-
-  delay(100);
-
-  
 
   u8g.firstPage(); 
   do {
