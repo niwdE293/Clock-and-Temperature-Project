@@ -1,6 +1,6 @@
 # Clock and Temperature Project
 
-## About
+## Description
 
 Project: Clock and temperature project
 Author: Edwin Ädel
